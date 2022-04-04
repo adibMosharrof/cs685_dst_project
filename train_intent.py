@@ -12,7 +12,8 @@ from sentence_transformers.evaluation import EmbeddingSimilarityEvaluator
 
 
 def train_contrastive_intent(data_root):
-    model_out_path = 'out/model_checkpoint'
+    model_out_path = Path('out/model_checkpoint')
+    model_out_path.mkdir(parents=True, exist_ok=True)
     model = SentenceTransformer('all-MiniLM-L6-v2')
     train_data_path = data_root / "train" / "contrastive_intents_data_train.csv"
     dev_data_path = data_root / "dev" / "contrastive_intents_data_dev.csv"
@@ -26,13 +27,13 @@ def train_contrastive_intent(data_root):
     model.fit(
         [(train_dl, train_loss)], 
         show_progress_bar=True, 
-        epochs=10,
+        epochs=2,
         evaluator=evaluator,
-        output_path = model_out_path
+        output_path = str(model_out_path)
         )
     model = SentenceTransformer(model_out_path)
     test_evaluator = EmbeddingSimilarityEvaluator.from_input_examples(test_data)
-    test_evaluator(model, output_path=model_out_path)
+    test_evaluator(model, output_path=str(model_out_path))
     a=1
 
 
