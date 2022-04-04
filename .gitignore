@@ -1,0 +1,5 @@
+.vscode/
+data/
+out/
+envs/
+processed_data/
