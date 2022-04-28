@@ -1,0 +1,14 @@
+trainer:
+  max_epochs: 5
+  strategy: 'ddp'
+  accelerator: 'gpu'
+  devices: 2
+model:
+  class_path: models.ContrastiveIntentModel
+  init_args:
+    model_name : sentence-transformers/all-MiniLM-L6-v2
+data:
+  class_path: data_modules.ContrastiveIntentDataModule
+  init_args:
+    batch_size: 150
+    model_name : sentence-transformers/all-MiniLM-L6-v2

@@ -3,3 +3,5 @@ data/
 out/
 envs/
 processed_data/
+lightning_logs/
+__pycache__/

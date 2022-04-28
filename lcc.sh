@@ -3,8 +3,8 @@
 #SBATCH --job-name=my_test_job # Job name
 #SBATCH --ntasks=1 # Number of cores for the job. Same as SBATCH -n 1
 #SBATCH --partition=P4V12_SKY32M192_L # Partition/queue to runthe job in. (REQUIRED)
-#SBATCH -e lcc_out/slurm-%j.err # Error file for this job.
-#SBATCH -o lcc_out/slurm-%j.out # Output file for this job.
+#SBATCH -e logs_lcc/slurm-%j.err # Error file for this job.
+#SBATCH -o logs_lcc/slurm-%j.out # Output file for this job.
 #SBATCH -A gel_msi290_s22cs685 # Project allocation account name
 #SBATCH --gres=gpu:1
 
