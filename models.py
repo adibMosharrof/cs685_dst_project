@@ -1,14 +1,16 @@
 import importlib
+from pathlib import Path
+
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 import torchmetrics as metrics
-from sentence_transformers import SentenceTransformer, losses, InputExample, util
-from torch import nn, optim
+from sentence_transformers import InputExample, SentenceTransformer, losses, util
 from sentence_transformers.cross_encoder import CrossEncoder
+from torch import nn, optim
 from transformers import AutoModel
+
 import utils
-from pathlib import Path
 from my_dataclasses import Steps
 
 
@@ -232,25 +234,50 @@ class SlotNameModel(BaseModel):
             self.slot_names_dict[step] = {slot: i for i, slot in enumerate(slots)}
             self.slot_names[step] = list(self.slot_names_dict[step].keys())
 
+    # def _shared_step(self, batch, batch_idx=None, step="train", metric=None):
+    #     pos, neg = batch
+    #     utterances = {
+    #         "input_ids": torch.concat((pos[0]["input_ids"], neg[0]["input_ids"])),
+    #         "attention_mask": torch.concat(
+    #             (pos[0]["attention_mask"], neg[0]["attention_mask"])
+    #         ),
+    #     }
+
+    #     slots = {
+    #         "input_ids": torch.concat((pos[1]["input_ids"], neg[1]["input_ids"])),
+    #         "attention_mask": torch.concat(
+    #             (pos[1]["attention_mask"], neg[1]["attention_mask"])
+    #         ),
+    #     }
+    #     labels = torch.concat((pos[2], neg[2]))
+    #     slot_names_id = torch.concat((pos[3], neg[3]))
+
+    #     loss = self.criterion([utterances, slots], labels)
+    #     slot_name_emb = self.model.encode(self.slot_names[step], convert_to_tensor=True)
+    #     similarity = util.cos_sim(utterances["sentence_embedding"], slot_name_emb)
+    #     self.log_dict(metric(similarity, slot_names_id), prog_bar=True)
+    #     return loss
+
     def _shared_step(self, batch, batch_idx=None, step="train", metric=None):
-        pos, neg = batch
-        utterances = {
-            "input_ids": torch.concat((pos[0]["input_ids"], neg[0]["input_ids"])),
-            "attention_mask": torch.concat(
-                (pos[0]["attention_mask"], neg[0]["attention_mask"])
-            ),
-        }
+        utterances, slots, slot_names_id = batch
+        slot_names_id = slot_names_id[0]
+        # utterances = {
+        #     "input_ids": torch.concat((pos[0]["input_ids"], neg[0]["input_ids"])),
+        #     "attention_mask": torch.concat(
+        #         (pos[0]["attention_mask"], neg[0]["attention_mask"])
+        #     ),
+        # }
 
-        slots = {
-            "input_ids": torch.concat((pos[1]["input_ids"], neg[1]["input_ids"])),
-            "attention_mask": torch.concat(
-                (pos[1]["attention_mask"], neg[1]["attention_mask"])
-            ),
-        }
-        labels = torch.concat((pos[2], neg[2]))
-        slot_names_id = torch.concat((pos[3], neg[3]))
+        # slots = {
+        #     "input_ids": torch.concat((pos[1]["input_ids"], neg[1]["input_ids"])),
+        #     "attention_mask": torch.concat(
+        #         (pos[1]["attention_mask"], neg[1]["attention_mask"])
+        #     ),
+        # }
+        # labels = torch.concat((pos[2], neg[2]))
+        # slot_names_id = torch.concat((pos[3], neg[3]))
 
-        loss = self.criterion([utterances, slots], labels)
+        loss = self.criterion([utterances, slots], 1)
         slot_name_emb = self.model.encode(self.slot_names[step], convert_to_tensor=True)
         similarity = util.cos_sim(utterances["sentence_embedding"], slot_name_emb)
         self.log_dict(metric(similarity, slot_names_id), prog_bar=True)

@@ -8,7 +8,7 @@ import pytorch_lightning as pl
 import torch
 from dataclass_csv import DataclassReader
 from sentence_transformers import InputExample
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, default_collate
 from transformers import AutoTokenizer, PreTrainedTokenizerFast
 
 import utils
@@ -46,6 +46,7 @@ class IntentDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
+            collate_fn=getattr(self, "my_collate", None),
         )
 
     def val_dataloader(self):
@@ -54,7 +55,7 @@ class IntentDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
-            # collate_fn=self.my_collate,
+            collate_fn=getattr(self, "my_collate", None),
         )
 
     def test_dataloader(self):
@@ -63,10 +64,23 @@ class IntentDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
+            collate_fn=getattr(self, "my_collate", None),
         )
 
-    def my_collate(self, data):
-        a = 1
+    def tokenize(self, text: str):
+        tokens = self.tokenizer.encode_plus(
+            text,
+            add_special_tokens=True,
+            return_tensors="pt",
+            truncation=True,
+            padding="max_length",
+            max_length=self.max_token_len,
+            return_attention_mask=True,
+        )
+        return {
+            "input_ids": tokens.input_ids.flatten(),
+            "attention_mask": tokens.attention_mask.flatten(),
+        }
 
 
 class IntentDataset(Dataset):
@@ -123,12 +137,19 @@ class ContrastiveIntentDataModule(IntentDataModule):
             csv_path = self.data_path / step / f"contrastive_intents_data_{step}.csv"
             intent_data = utils.read_csv_dataclass(csv_path, IntentCsvData)
             self.datasets[step] = ContrastiveIntentDataset(
-                intent_data, self.tokenizer, self.max_token_len
+                intent_data,
+                self.tokenizer,
+                self.max_token_len,
             )
 
 
 class ContrastiveIntentDataset(Dataset):
-    def __init__(self, data: list[IntentCsvData], tokenizer=None, max_token_len=128):
+    def __init__(
+        self,
+        data: list[IntentCsvData],
+        tokenizer=None,
+        max_token_len=128,
+    ):
         self.data = data
         self.tokenizer = tokenizer
         self.max_token_len = max_token_len
@@ -204,24 +225,11 @@ class SlotNameDataset(Dataset):
 
     def __getitem__(self, index: int):
         item: SlotValueCsvData = self.data[index]
-        while True:
-            rand_item = np.random.choice(self.data)
-            if rand_item.utterance != item.utterance and rand_item.slot != item.slot:
-                break
-        rand_item.slot = item.slot
+
         return [
-            [
-                self.tokenize(item.utterance),
-                self.tokenize(item.slot),
-                1,
-                self.slot_names_dict[item.slot],
-            ],
-            [
-                self.tokenize(rand_item.utterance),
-                self.tokenize(rand_item.slot),
-                0,
-                self.slot_names_dict[rand_item.slot],
-            ],
+            item.utterance,
+            item.slot,
+            self.slot_names_dict[item.slot],
         ]
 
     def tokenize(self, text: str):

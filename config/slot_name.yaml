@@ -6,7 +6,7 @@ model:
   class_path: models.SlotNameModel
   init_args:
     model_name : sentence-transformers/all-MiniLM-L6-v2
-    loss_func_name: OnlineContrastiveLoss
+    loss_func_name: MultipleNegativesRankingLoss
 data:
   class_path: data_modules.SlotNameDataModule
   init_args:
