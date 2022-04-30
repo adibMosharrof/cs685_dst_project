@@ -5,8 +5,7 @@ import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 import torchmetrics as metrics
-from sentence_transformers import InputExample, SentenceTransformer, losses, util
-from sentence_transformers.cross_encoder import CrossEncoder
+from sentence_transformers import SentenceTransformer, losses, util
 from torch import nn, optim
 from transformers import AutoModel
 
@@ -57,12 +56,9 @@ class IntentModel(pl.LightningModule):
         )
 
     def forward(self, data):
-        # return self.model(**data)
-        # return self.model(data["input_ids"])
         out = self.bert(data["input_ids"], data["attention_mask"])
         x = torch.mean(out.last_hidden_state, 1)
         x = F.relu(x)
-        # x = self.dropout(x)
         logits = self.classifier(x)
         return logits
 
@@ -78,11 +74,9 @@ class IntentModel(pl.LightningModule):
     def _shared_step(self, batch, batch_idx=None, step="train", metric=None):
         data, labels = batch.values()
         logits = self(data)
-        # labels = batch["labels"]
         loss = self.criterion(logits, labels)
         preds = torch.argmax(logits, dim=1)
         accuracy = metric(preds, labels)
-        # accuracy = metric(logits, labels).detach()
         self.log(f"{step}/acc", accuracy, prog_bar=True)
         self.log(f"{step}/loss", loss, prog_bar=True)
         return loss
@@ -148,7 +142,6 @@ class ContrastiveIntentModel(pl.LightningModule):
         super().__init__()
 
         self.model = SentenceTransformer(model_name)
-        # self.model = CrossEncoder(model_name, num_labels=1)
 
         self.criterion = losses.MultipleNegativesRankingLoss(model=self.model)
         self.metrics = {}
@@ -220,7 +213,6 @@ class SlotNameModel(BaseModel):
         data_root="processed_data",
         loss_func_name: str = "OnlineContrastiveLoss",
     ):
-        # super().__init__(model_name, losses.OnlineContrastiveLoss)
         loss_func = getattr(
             importlib.import_module("sentence_transformers.losses"), loss_func_name
         )
@@ -234,48 +226,9 @@ class SlotNameModel(BaseModel):
             self.slot_names_dict[step] = {slot: i for i, slot in enumerate(slots)}
             self.slot_names[step] = list(self.slot_names_dict[step].keys())
 
-    # def _shared_step(self, batch, batch_idx=None, step="train", metric=None):
-    #     pos, neg = batch
-    #     utterances = {
-    #         "input_ids": torch.concat((pos[0]["input_ids"], neg[0]["input_ids"])),
-    #         "attention_mask": torch.concat(
-    #             (pos[0]["attention_mask"], neg[0]["attention_mask"])
-    #         ),
-    #     }
-
-    #     slots = {
-    #         "input_ids": torch.concat((pos[1]["input_ids"], neg[1]["input_ids"])),
-    #         "attention_mask": torch.concat(
-    #             (pos[1]["attention_mask"], neg[1]["attention_mask"])
-    #         ),
-    #     }
-    #     labels = torch.concat((pos[2], neg[2]))
-    #     slot_names_id = torch.concat((pos[3], neg[3]))
-
-    #     loss = self.criterion([utterances, slots], labels)
-    #     slot_name_emb = self.model.encode(self.slot_names[step], convert_to_tensor=True)
-    #     similarity = util.cos_sim(utterances["sentence_embedding"], slot_name_emb)
-    #     self.log_dict(metric(similarity, slot_names_id), prog_bar=True)
-    #     return loss
-
     def _shared_step(self, batch, batch_idx=None, step="train", metric=None):
         utterances, slots, slot_names_id = batch
         slot_names_id = slot_names_id[0]
-        # utterances = {
-        #     "input_ids": torch.concat((pos[0]["input_ids"], neg[0]["input_ids"])),
-        #     "attention_mask": torch.concat(
-        #         (pos[0]["attention_mask"], neg[0]["attention_mask"])
-        #     ),
-        # }
-
-        # slots = {
-        #     "input_ids": torch.concat((pos[1]["input_ids"], neg[1]["input_ids"])),
-        #     "attention_mask": torch.concat(
-        #         (pos[1]["attention_mask"], neg[1]["attention_mask"])
-        #     ),
-        # }
-        # labels = torch.concat((pos[2], neg[2]))
-        # slot_names_id = torch.concat((pos[3], neg[3]))
 
         loss = self.criterion([utterances, slots], 1)
         slot_name_emb = self.model.encode(self.slot_names[step], convert_to_tensor=True)
