@@ -9,6 +9,14 @@ class IntentCsvData:
     label: int
 
 
+@dataclass
+class SlotValueCsvData:
+    utterance: str
+    slot: str
+    start_index: int
+    end_index: int
+
+
 class SuperEnum(Enum):
     @classmethod
     def to_dict(cls):

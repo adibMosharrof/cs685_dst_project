@@ -25,21 +25,25 @@ class PrepareData:
             step_dir.mkdir(parents=True, exist_ok=True)
             schemas_path = dstc_root / step / "schema.json"
             prepped_intents_path = step_dir / f"intents_{step}.txt"
+            prepped_slot_names_path = step_dir / f"slot_names_{step}.txt"
             contrastive_intent_path = step_dir / f"contrastive_intents_data_{step}.csv"
+            slot_value_path = step_dir / f"slot_value_data_{step}.csv"
             slot_labels_path = step_dir / f"slot_labels_{step}.txt"
             slot_classification_out_path = step_dir / f"slot_classification_{step}.txt"
             schemas = self._get_schemas(schemas_path)
             slot_labels = self.prepare_slot_labels(schemas, slot_labels_path)
-            self.prepare_slot_classification(
-                step_dir, slot_classification_out_path, slot_labels
-            )
+            # self.prepare_slot_classification(
+            #     step_dir, slot_classification_out_path, slot_labels
+            # )
             self.prepare_intents(schemas, prepped_intents_path)
-            self.prepare_intents_slots_data(
-                dstc_root / step,
-                prepped_intents_path,
-                contrastive_intent_path,
-                step=step,
-            )
+            self.prepare_intents(schemas, prepped_slot_names_path, field_name='slots')
+            # self.prepare_intents_slots_data(
+            #     dstc_root / step,
+            #     prepped_intents_path,
+            #     contrastive_intent_path,
+            #     step=step,
+            # )
+            # self.prepare_slot_values_data(dstc_root / step, slot_value_path)
 
     def prepare_slot_classification(self, step_dir, out_path, slot_labels):
         """
@@ -52,11 +56,11 @@ class PrepareData:
 
         a = 1
 
-    def prepare_intents(self, schemas, out_path):
+    def prepare_intents(self, schemas, out_path, field_name="intents", item_name='name'):
         all_intents = ["NONE"]
-        for schema in schemas:
-            for intent in schema["intents"]:
-                all_intents.append(intent["name"])
+        for schema in tqdm(schemas):
+            for intent in schema[field_name]:
+                all_intents.append(intent[item_name])
         unique_intents = np.unique(all_intents)
         utils.write_json(unique_intents.tolist(), out_path)
 
@@ -109,6 +113,37 @@ class PrepareData:
 
         headers = ["utterance", "intent", "label"]
         utils.write_csv(headers, intents_data, contrastive_intent_path)
+
+    def get_slot_values_from_dialog(self, dialogues, step="train"):
+        data = []
+        for d in dialogues:
+            for turn in d["turns"]:
+                if turn["speaker"] == "SYSTEM":
+                    continue
+                for frames in turn["frames"]:
+                    utterance = turn["utterance"]
+                    slots = frames["slots"]
+                    for slot in slots:
+                        data.append(
+                            [
+                                utterance,
+                                slot["slot"],
+                                slot["start"],
+                                slot["exclusive_end"],
+                            ]
+                        )
+        return data
+
+    def prepare_slot_values_data(
+        self, dstc_step_path, slot_value_out_path, step="train"
+    ):
+        dialog_json_paths = self.get_dialogues_file_paths(dstc_step_path)
+        for path in tqdm(dialog_json_paths):
+            dialogues = utils.read_json(path)
+            data = self.get_slot_values_from_dialog(dialogues, step=step)
+
+        headers = ["utterance", "slot", "start_index", "end_index"]
+        utils.write_csv(headers, data, slot_value_out_path)
 
     def _get_schemas(self, path):
         with open(path) as f:

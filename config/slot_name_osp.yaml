@@ -1,0 +1,17 @@
+trainer:
+  max_epochs: 50
+  strategy: 'ddp'
+  accelerator: 'gpu'
+  devices: 2
+model:
+  class_path: models.SlotNameModel
+  init_args:
+    model_name : sentence-transformers/all-MiniLM-L6-v2
+    loss_func_name: ContrastiveLoss
+data:
+  class_path: data_modules.SlotNameDataModule
+  init_args:
+    batch_size: 70
+    model_name : sentence-transformers/all-MiniLM-L6-v2
+    num_workers: 24
+    max_token_len: 64

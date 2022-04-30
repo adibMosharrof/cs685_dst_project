@@ -1,3 +1,4 @@
+import importlib
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
@@ -88,6 +89,56 @@ class IntentModel(pl.LightningModule):
         return optim.AdamW(self.parameters(), lr=1e-3, betas=(0.9, 0.99), eps=1e-5)
 
 
+class BaseModel(pl.LightningModule):
+    def __init__(
+        self, model_name="distilbert-base-uncased", loss_func: nn.Module = None
+    ):
+        super().__init__()
+
+        self.model = SentenceTransformer(model_name)
+
+        self.criterion = loss_func(model=self.model)
+        self.train_metrics = metrics.MetricCollection(
+            {
+                "train_top-01": metrics.Accuracy(),
+                "train_top-01": metrics.Accuracy(top_k=1),
+                "train_top-02": metrics.Accuracy(top_k=2),
+                "train_top-03": metrics.Accuracy(top_k=3),
+                "train_top-05": metrics.Accuracy(top_k=5),
+            }
+        )
+        self.val_metrics = metrics.MetricCollection(
+            {
+                "val_top-01": metrics.Accuracy(),
+                "val_top-01": metrics.Accuracy(top_k=1),
+                "val_top-02": metrics.Accuracy(top_k=2),
+                "val_top-03": metrics.Accuracy(top_k=3),
+                "val_top-05": metrics.Accuracy(top_k=5),
+            }
+        )
+        self.test_metrics = metrics.MetricCollection(
+            {
+                "test_top-01": metrics.Accuracy(),
+                "test_top-01": metrics.Accuracy(top_k=1),
+                "test_top-02": metrics.Accuracy(top_k=2),
+                "test_top-03": metrics.Accuracy(top_k=3),
+                "test_top-05": metrics.Accuracy(top_k=5),
+            }
+        )
+
+    def training_step(self, batch, batch_idx=None):
+        return self._shared_step(batch, step=Steps.train.name, metric=self.test_metrics)
+
+    def validation_step(self, batch, batch_idx=None):
+        return self._shared_step(batch, step=Steps.dev.name, metric=self.val_metrics)
+
+    def test_step(self, batch, batch_idx=None):
+        return self._shared_step(batch, step=Steps.train.name, metric=self.test_metrics)
+
+    def configure_optimizers(self):
+        return optim.AdamW(self.parameters(), lr=1e-3, betas=(0.9, 0.99), eps=1e-5)
+
+
 class ContrastiveIntentModel(pl.LightningModule):
     def __init__(
         self, model_name="distilbert-base-uncased", data_root="processed_data"
@@ -132,7 +183,7 @@ class ContrastiveIntentModel(pl.LightningModule):
         for step in ["dev", "test", "train"]:
             path = Path(data_root) / step / f"intents_{step}.txt"
             intents = utils.read_json(str(path))
-            self.all_intents_dict[step] = {k: v for v, k in enumerate(intents)}
+            self.all_intents_dict[step] = {k: i for i, k in enumerate(intents)}
             self.all_intents[step] = list(self.all_intents_dict[step].keys())
 
     def training_step(self, batch, batch_idx=None):
@@ -154,6 +205,55 @@ class ContrastiveIntentModel(pl.LightningModule):
             device=self.model.device,
         )
         self.log_dict(metric(similarity, labels), prog_bar=True)
+        return loss
+
+    def configure_optimizers(self):
+        return optim.AdamW(self.parameters(), lr=1e-3, betas=(0.9, 0.99), eps=1e-5)
+
+
+class SlotNameModel(BaseModel):
+    def __init__(
+        self,
+        model_name="distilbert-base-uncased",
+        data_root="processed_data",
+        loss_func_name: str = "OnlineContrastiveLoss",
+    ):
+        # super().__init__(model_name, losses.OnlineContrastiveLoss)
+        loss_func = getattr(
+            importlib.import_module("sentence_transformers.losses"), loss_func_name
+        )
+        super().__init__(model_name, loss_func)
+        self.model = SentenceTransformer(model_name)
+        self.slot_names_dict = {}
+        self.slot_names = {}
+        for step in ["dev", "test", "train"]:
+            path = Path(data_root) / step / f"slot_names_{step}.txt"
+            slots = utils.read_json(str(path))
+            self.slot_names_dict[step] = {slot: i for i, slot in enumerate(slots)}
+            self.slot_names[step] = list(self.slot_names_dict[step].keys())
+
+    def _shared_step(self, batch, batch_idx=None, step="train", metric=None):
+        pos, neg = batch
+        utterances = {
+            "input_ids": torch.concat((pos[0]["input_ids"], neg[0]["input_ids"])),
+            "attention_mask": torch.concat(
+                (pos[0]["attention_mask"], neg[0]["attention_mask"])
+            ),
+        }
+
+        slots = {
+            "input_ids": torch.concat((pos[1]["input_ids"], neg[1]["input_ids"])),
+            "attention_mask": torch.concat(
+                (pos[1]["attention_mask"], neg[1]["attention_mask"])
+            ),
+        }
+        labels = torch.concat((pos[2], neg[2]))
+        slot_names_id = torch.concat((pos[3], neg[3]))
+
+        loss = self.criterion([utterances, slots], labels)
+        slot_name_emb = self.model.encode(self.slot_names[step], convert_to_tensor=True)
+        similarity = util.cos_sim(utterances["sentence_embedding"], slot_name_emb)
+        self.log_dict(metric(similarity, slot_names_id), prog_bar=True)
         return loss
 
     def configure_optimizers(self):

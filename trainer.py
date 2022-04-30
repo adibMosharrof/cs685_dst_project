@@ -17,9 +17,17 @@ MODEL_REGISTRY.register_classes(models, LightningModule)
 DATAMODULE_REGISTRY.register_classes(data_modules, LightningDataModule)
 
 
-# class MyLightningCLI(LightningCLI):
-#     def add_arguments_to_parser(self, parser: LightningArgumentParser) -> None:
-#         parser.link_arguments("model.model_name", "data.model_name")
+class MyLightningCLI(LightningCLI):
+    def before_fit(self):
+        data_params = self.config["fit"]["model"]
+        model_params = self.config["fit"]["data"]
+        trainer_params = self.config["fit"]["trainer"]
+        hparams_dict = {
+            "model": model_params["class_path"],
+            "epochs": trainer_params["max_epochs"],
+        }
+
+        self.trainer.logger.log_hyperparams(hparams_dict)
 
 
 # parser.add_argument("--plot_name", default="plot_embeddings")
@@ -38,6 +46,6 @@ if __name__ == "__main__":
     # data = [dl.dataset[0]]
     # # model.eval()
     # embeds = model.encode(data[0])
-    cli = LightningCLI()
-    # cli = MyLightningCLI()
+    # cli = LightningCLI()
+    cli = MyLightningCLI()
     # a = 1
