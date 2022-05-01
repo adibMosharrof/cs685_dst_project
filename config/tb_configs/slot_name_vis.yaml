@@ -1,0 +1,9 @@
+versions:
+  - 1
+metrics:
+  - test_top-01
+  - test_top-02
+  - test_top-03
+  - test_top-05
+plot_title: Slot Name Top-k Prediction Accuracy
+log_dir: lightning_logs/slot_name/lightning_logs

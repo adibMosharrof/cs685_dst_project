@@ -1,0 +1,9 @@
+versions:
+  - 6
+metrics:
+  - test_top-01
+  - test_top-02
+  - test_top-03
+  - test_top-05
+plot_title: Intent Detection Top-k Prediction Accuracy
+log_dir: intent/lightning_logs
