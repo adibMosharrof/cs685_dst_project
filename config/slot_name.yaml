@@ -1,4 +1,5 @@
 trainer:
+  default_root_dir: lightning_logs/slot_name
   max_epochs: 1
   gpus:
     - 0

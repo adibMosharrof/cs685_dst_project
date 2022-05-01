@@ -1,5 +1,6 @@
 trainer:
-  max_epochs: 5
+  default_root_dir: lightning_logs/slot_name
+  max_epochs: 50
   # strategy: 'ddp'
   # accelerator: 'gpu'
   # devices: 1

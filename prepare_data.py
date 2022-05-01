@@ -1,8 +1,6 @@
 import torch
 from argparse import ArgumentParser
-import pytorch_lightning as pl
 from pathlib import Path
-from transformers import BertTokenizer, BertForSequenceClassification
 import json
 import dirtyjson
 import numpy as np
@@ -36,7 +34,7 @@ class PrepareData:
             #     step_dir, slot_classification_out_path, slot_labels
             # )
             self.prepare_intents(schemas, prepped_intents_path)
-            self.prepare_intents(schemas, prepped_slot_names_path, field_name='slots')
+            self.prepare_intents(schemas, prepped_slot_names_path, field_name="slots")
             # self.prepare_intents_slots_data(
             #     dstc_root / step,
             #     prepped_intents_path,
@@ -56,7 +54,9 @@ class PrepareData:
 
         a = 1
 
-    def prepare_intents(self, schemas, out_path, field_name="intents", item_name='name'):
+    def prepare_intents(
+        self, schemas, out_path, field_name="intents", item_name="name"
+    ):
         all_intents = ["NONE"]
         for schema in tqdm(schemas):
             for intent in schema[field_name]:

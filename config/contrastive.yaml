@@ -1,4 +1,5 @@
 trainer:
+  default_root_dir: lightning_logs/intent
   max_epochs: 1
   gpus:
     - 0
@@ -11,3 +12,5 @@ data:
   init_args:
     batch_size: 50
     model_name : sentence-transformers/all-MiniLM-L6-v2
+    num_workers: 0
+    max_token_len: 64

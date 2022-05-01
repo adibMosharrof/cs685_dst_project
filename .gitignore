@@ -4,4 +4,6 @@ out/
 envs/
 processed_data/
 lightning_logs/
+intent/lightning_logs/
 __pycache__/
+outputs/

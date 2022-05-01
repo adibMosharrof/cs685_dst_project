@@ -47,6 +47,7 @@ class IntentDataModule(pl.LightningDataModule):
             shuffle=True,
             num_workers=self.num_workers,
             collate_fn=getattr(self, "my_collate", None),
+            pin_memory=True,
         )
 
     def val_dataloader(self):
@@ -56,6 +57,7 @@ class IntentDataModule(pl.LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers,
             collate_fn=getattr(self, "my_collate", None),
+            pin_memory=True,
         )
 
     def test_dataloader(self):
@@ -65,6 +67,7 @@ class IntentDataModule(pl.LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers,
             collate_fn=getattr(self, "my_collate", None),
+            pin_memory=True,
         )
 
     def tokenize(self, text: str):
@@ -122,8 +125,8 @@ class ContrastiveIntentDataModule(IntentDataModule):
         batch_size=300,
         num_workers=8,
         data_path="processed_data",
-        model_name="roberta",
-        max_token_len=128,
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
+        max_token_len=64,
     ) -> None:
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -183,7 +186,7 @@ class SlotNameDataModule(IntentDataModule):
         batch_size=300,
         num_workers=8,
         data_path="processed_data",
-        model_name="roberta",
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
         max_token_len=128,
     ) -> None:
         self.batch_size = batch_size
@@ -220,15 +223,15 @@ class SlotNameDataset(Dataset):
         self.max_token_len = max_token_len
 
         slots_path = data_root / step / f"slot_names_{step}.txt"
-        slots = utils.read_json(slots_path)
-        self.slot_names_dict = {slot: i for i, slot in enumerate(slots)}
+        self.slots = utils.read_json(slots_path)
+        self.slot_names_dict = {slot: i for i, slot in enumerate(self.slots)}
 
     def __getitem__(self, index: int):
         item: SlotValueCsvData = self.data[index]
 
         return [
-            item.utterance,
-            item.slot,
+            self.tokenize(item.utterance),
+            self.tokenize(item.slot),
             self.slot_names_dict[item.slot],
         ]
 

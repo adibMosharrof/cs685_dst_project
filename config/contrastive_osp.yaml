@@ -1,15 +1,16 @@
 trainer:
-  max_epochs: 
-  strategy: 'ddp'
-  accelerator: 'gpu'
-  devices: 2
+  default_root_dir: lightning_logs/intent
+  max_epochs: 50
+  gpus:
+    - 1
 model:
   class_path: models.ContrastiveIntentModel
   init_args:
     model_name : sentence-transformers/all-MiniLM-L6-v2
-    
 data:
   class_path: data_modules.ContrastiveIntentDataModule
   init_args:
-    batch_size: 150
+    batch_size: 250
     model_name : sentence-transformers/all-MiniLM-L6-v2
+    num_workers: 12
+    max_token_len: 64
