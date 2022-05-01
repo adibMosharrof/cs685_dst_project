@@ -1,0 +1,40 @@
+----------
+utterance : i want a standard car and yes i want to pick it up there.
+
+intent pred: ReserveCar
+----------
+utterance : perfect. thanks. can you please also find a izakaya restaurant for me in the area?
+
+intent pred: FindRestaurants
+----------
+utterance : i want to pick it up in anaheim
+
+intent pred: GetCarsAvailable
+----------
+utterance : what's the property phone number
+
+intent pred: ShareLocation
+----------
+utterance : 1 bedroom is fine.
+
+intent pred: ShareLocation
+----------
+utterance : thanks so much.
+
+intent pred: GetTrainTickets
+----------
+utterance : no. can i have some more?
+
+intent pred: FindMovies
+----------
+utterance : i need a bus to san francisco.
+
+intent pred: FindBus
+----------
+utterance : when does it start
+
+intent pred: FindEvents
+----------
+utterance : yes. what's the genre?
+
+intent pred: PlayMedia

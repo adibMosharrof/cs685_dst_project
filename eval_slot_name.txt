@@ -1,0 +1,300 @@
+----------
+utterance : is there any other option available? i want a compact car till the 12th.
+
+slot name prediction : return_date
+
+Slots Values: a compact car till the 12th. [SEP] return _
+----------
+utterance : i want some seafood
+
+slot name prediction : has_vegetarian_options
+
+Slots Values: _ vegetarian _
+----------
+utterance : i am departing la tomorrow and headed to sacramento.
+
+slot name prediction : where_to
+
+Slots Values: 
+----------
+utterance : i will get the car on the 10th of this month.
+
+slot name prediction : directed_by
+
+Slots Values: get the car on the 10th of this month.
+----------
+utterance : would you like to make a reservation for 1 at 18 : 00?
+
+slot name prediction : show_time
+
+Slots Values: [CLS] would you like to make a reservation for 1 at 18 :
+----------
+utterance : i want it at seven pm.
+
+slot name prediction : show_time
+
+Slots Values: [SEP] show _
+----------
+utterance : are there any alternatives? could you help me search for an ophthalmologist in santa rosa instead?
+
+slot name prediction : to_city
+
+Slots Values: an ophthalmo
+----------
+utterance : i will prefer the doctor to be located in santa clara, please.
+
+slot name prediction : to_city
+
+Slots Values: 
+----------
+utterance : i want to depart on the 3rd of this month going from san diego to long beach.
+
+slot name prediction : directed_by
+
+Slots Values: from san die
+----------
+utterance : i also want to watch a funny movie directed by robert budreau
+
+slot name prediction : directed_by
+
+Slots Values: by robert budrea
+----------
+utterance : i want to go from lax to san diego on march 5th.
+
+slot name prediction : directed_by
+
+Slots Values: 
+----------
+utterance : i need bus tickets please for four passengers on the 12th of march from anaheim, ca.
+
+slot name prediction : where_to
+
+Slots Values: 
+----------
+utterance : i want to search for the bus from anaheim to la on 7th of this month.
+
+slot name prediction : where_to
+
+Slots Values: from anaheim to
+----------
+utterance : okay, that sounds good. i'll need a cab to get there. can you find me a pool cab for 1 to 2301 camino ramon.
+
+slot name prediction : directed_by
+
+Slots Values: need a
+----------
+utterance : that works. can you find me a rental car? i'd like to pick it up in long beach on the 12th of this month.
+
+slot name prediction : return_date
+
+Slots Values: a rental car? i'd like to pick it up in long beach on the 12th of this month. [SEP] return _
+----------
+utterance : i like afghan.
+
+slot name prediction : directed_by
+
+Slots Values: like af
+----------
+utterance : search some gynecologist in sf.
+
+slot name prediction : to_city
+
+Slots Values: in sf.
+----------
+utterance : you want me to look for a bus leaving from las vegas later today for 2
+
+slot name prediction : where_to
+
+Slots Values: las ve
+----------
+utterance : that's good, now i need a rental car from the 13th of march
+
+slot name prediction : return_date
+
+Slots Values: a rental
+----------
+utterance : i am looking for an ophthalmologist in daly city
+
+slot name prediction : city
+
+Slots Values: an ophthalmo
+----------
+utterance : i want to go from lax to san diego on march 5th.
+
+slot name prediction : directed_by
+
+Slots Values: 
+----------
+utterance : i'd like to find a rental car to pick up in san francisco from the 9th of this month until the 10th of this month.
+
+slot name prediction : return_date
+
+Slots Values: in san francis
+----------
+utterance : please book a small car for pickup at evening 6 : 30 and i want it up to the date 13th of march.
+
+slot name prediction : directed_by
+
+Slots Values: [SEP] directed _
+----------
+utterance : in the evening 7 : 15.
+
+slot name prediction : show_time
+
+Slots Values: [SEP] show _
+----------
+utterance : auntie mame is great, could you play it for me now?
+
+slot name prediction : directed_by
+
+Slots Values: 
+----------
+utterance : i'll be needing it until the 14th of this month.
+
+slot name prediction : directed_by
+
+Slots Values: be needing it until the 14th of this month. [SEP] directed _ by
+----------
+utterance : i'd like a light meal.
+
+slot name prediction : has_vegetarian_options
+
+Slots Values: [SEP] has _ vegetarian _
+----------
+utterance : i will be travelling from seattle, wa to portland on the 11th of march.
+
+slot name prediction : where_to
+
+Slots Values: ,
+----------
+utterance : i will be dining in at half past 7 in the evening.
+
+slot name prediction : show_time
+
+Slots Values: [SEP] show _ time
+----------
+utterance : i'd like to book for march 1st at seven pm.
+
+slot name prediction : directed_by
+
+Slots Values: book for march 1st at seven pm.
+----------
+utterance : i'm leaving from sacramento to la on march 2nd.
+
+slot name prediction : where_to
+
+Slots Values: from sacramento to
+----------
+utterance : yeah, can you look at hire cars there? i'll need to pick it up on at around three pm and i can drop it back on the 14th of this month.
+
+slot name prediction : pickup_time
+
+Slots Values: at hire cars there? i'll need to pick it up on at around three pm and i can drop it back on the 14th of this month. [SEP] pickup _
+----------
+utterance : i'm leaving from lax, it's 3 people total.
+
+slot name prediction : from
+
+Slots Values: from la
+----------
+utterance : nope, please change the timing to 1 : 30 in the afternoon for three people.
+
+slot name prediction : directed_by
+
+Slots Values: [CLS] nope, please change the timing to 1 : 30 in the afternoon for three people. [SEP] directed _
+----------
+utterance : i need a bus for one person departing on march 8th.
+
+slot name prediction : directed_by
+
+Slots Values: need a bus for one person departing on march 8th.
+----------
+utterance : i'd like to get a regular ride by a cab to 1479 ygnacio valley road.
+
+slot name prediction : directed_by
+
+Slots Values: ride
+----------
+utterance : yes, it seems good for me, i need it till 11th of this month.
+
+slot name prediction : directed_by
+
+Slots Values: 
+----------
+utterance : dogman sounds wonderful.
+
+slot name prediction : directed_by
+
+Slots Values: [CLS] dogman sounds wonderful.
+----------
+utterance : yes, josie and the pussycats is great.
+
+slot name prediction : directed_by
+
+Slots Values: the pussycats is great.
+----------
+utterance : i'd like to book for march 1st at seven pm.
+
+slot name prediction : directed_by
+
+Slots Values: book for march 1st at seven pm.
+----------
+utterance : try to find something directed by robert budreau.
+
+slot name prediction : directed_by
+
+Slots Values: by robert budrea
+----------
+utterance : thanks a bunch. find me a documentary movie to watch on the internet.
+
+slot name prediction : directed_by
+
+Slots Values: 
+----------
+utterance : can you find me a movie to watch online? i like films with the director matteo garrone.
+
+slot name prediction : directed_by
+
+Slots Values: director matteo gar
+----------
+utterance : please find another movie, i really like funny movies, i like movies directed by chris butler.
+
+slot name prediction : directed_by
+
+Slots Values: by chris
+----------
+utterance : search for mystery movies.
+
+slot name prediction : directed_by
+
+Slots Values: for mystery movies.
+----------
+utterance : some comic movies will be great, especially those directed by morton dacosta.
+
+slot name prediction : directed_by
+
+Slots Values: by morton dacos
+----------
+utterance : i say that jt leroy is an excellent idea! play it now, play it with subs!
+
+slot name prediction : directed_by
+
+Slots Values: with sub
+----------
+utterance : i am departing sacramento.
+
+slot name prediction : from_city
+
+Slots Values: departing sacramento.
+----------
+utterance : make it for seven pm.
+
+slot name prediction : show_time
+
+Slots Values: 
+----------
+utterance : that is perfect. please make a reservation for one person on the 5th at evening 4 : 45.
+
+slot name prediction : show_time
+
+Slots Values: make a reservation for one person on the 5th at evening 4 : 45. [SEP] show _
